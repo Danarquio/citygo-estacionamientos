@@ -1,0 +1,9 @@
+{
+  "name": "CityGo - Estacionamientos de visita",
+  "short_name": "CityGo Parking",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#132344",
+  "description": "Control de estacionamientos de visita del Edificio CityGo."
+}
