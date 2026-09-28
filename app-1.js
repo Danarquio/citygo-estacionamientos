@@ -5,32 +5,32 @@ const STORAGE_HISTORY = "citygo_parking_history_v2";
 const STORAGE_SOUND = "citygo_parking_sound_enabled_v1";
 
 const SLOT_DEFS = [
-  { number: 'EV03', left: 0.8, top: 81.7, width: 5.0, height: 12.2 },
-  { number: 'EV04', left: 0.8, top: 56.4, width: 4.2, height: 12.6 },
-  { number: 'EV05', left: 5.0, top: 56.4, width: 4.2, height: 12.6 },
-  { number: 'EV06', left: 9.2, top: 56.4, width: 4.2, height: 12.6 },
-  { number: 'EV07', left: 17.6, top: 56.4, width: 4.2, height: 12.6 },
-  { number: 'EV08', left: 21.8, top: 56.4, width: 4.2, height: 12.6 },
-  { number: 'EV09', left: 26.0, top: 56.4, width: 4.8, height: 12.6 },
-  { number: 'EM01', left: 30.6, top: 10.2, width: 2.4, height: 4.8 },
-  { number: 'EM02', left: 33.1, top: 10.2, width: 2.4, height: 4.8 },
-  { number: 'EM03', left: 35.6, top: 10.2, width: 2.4, height: 4.8 },
-  { number: 'EV10', left: 39.7, top: 65.8, width: 8.9, height: 4.8 },
-  { number: 'EV12', left: 40.4, top: 10.6, width: 6.8, height: 8.8 },
-  { number: 'EV13', left: 47.2, top: 10.6, width: 8.7, height: 8.8 },
-  { number: 'EV14', left: 47.2, top: 19.7, width: 8.7, height: 8.8 },
-  { number: 'EV15', left: 47.2, top: 38.6, width: 8.7, height: 8.2 },
-  { number: 'EV16', left: 48.7, top: 65.8, width: 7.1, height: 4.8 },
-  { number: 'EV17', left: 63.5, top: 56.2, width: 3.5, height: 10.5 },
-  { number: 'EV18', left: 67.1, top: 56.2, width: 3.7, height: 10.5 },
-  { number: 'EV19', left: 70.8, top: 56.2, width: 3.7, height: 10.5 },
-  { number: 'EV20', left: 74.5, top: 56.2, width: 3.9, height: 10.5 },
-  { number: 'EV21', left: 78.4, top: 56.2, width: 4.6, height: 10.5 },
-  { number: 'EV22', left: 83.0, top: 56.2, width: 4.7, height: 10.5 }
+  { number: 'EV03' },
+  { number: 'EV04' },
+  { number: 'EV05' },
+  { number: 'EV06' },
+  { number: 'EV07' },
+  { number: 'EV08' },
+  { number: 'EV09' },
+  { number: 'EM01' },
+  { number: 'EM02' },
+  { number: 'EM03' },
+  { number: 'EV10' },
+  { number: 'EV12' },
+  { number: 'EV13' },
+  { number: 'EV14' },
+  { number: 'EV15' },
+  { number: 'EV16' },
+  { number: 'EV17' },
+  { number: 'EV18' },
+  { number: 'EV19' },
+  { number: 'EV20' },
+  { number: 'EV21' },
+  { number: 'EV22' }
 ];
 
 const $ = (id) => document.getElementById(id);
-const spotsLayer = $("spotsLayer");
+const parkingSvg = $("parkingSvg");
 const visitDialog = $("visitDialog");
 const visitForm = $("visitForm");
 const occupiedView = $("occupiedView");
@@ -152,28 +152,38 @@ function renderClock(now) {
 }
 
 function renderMap(now) {
-  spotsLayer.innerHTML = "";
-  SLOT_DEFS.forEach(def => {
-    const slot = slotByNumber(def.number);
-    const status = statusFor(slot, now);
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = `spot-btn ${status}`;
-    btn.style.left = `${def.left}%`;
-    btn.style.top = `${def.top}%`;
-    btn.style.width = `${def.width}%`;
-    btn.style.height = `${def.height}%`;
-    btn.setAttribute("aria-label", `${def.number}: ${statusLabel(status)}`);
+  document.querySelectorAll(".parking-space").forEach(el => {
+    const number = el.dataset.slot;
+    const slot = slotByNumber(number);
+    if (!slot) return;
 
-    let mini = "";
-    if (slot.visit) {
-      const remaining = new Date(slot.visit.endAt) - now;
-      mini = `<span class="time-mini">${status === "red" ? `+ ${formatDuration(remaining)}` : formatDuration(remaining)}</span>`;
+    const status = statusFor(slot, now);
+    el.classList.remove("available", "green", "yellow", "red");
+    el.classList.add(status);
+    el.setAttribute("aria-label", `${number}: ${statusLabel(status)}`);
+
+    const timeEl = el.querySelector(".space-time");
+    if (timeEl) {
+      if (!slot.visit) {
+        timeEl.textContent = "";
+      } else {
+        const remaining = new Date(slot.visit.endAt) - now;
+        timeEl.textContent = status === "red"
+          ? `+${formatDuration(remaining)}`
+          : formatDuration(remaining);
+      }
     }
 
-    btn.innerHTML = `<span class="slot-label">${def.number}</span>${mini}`;
-    btn.addEventListener("click", () => openSlot(def.number));
-    spotsLayer.appendChild(btn);
+    if (!el.dataset.bound) {
+      el.dataset.bound = "true";
+      el.addEventListener("click", () => openSlot(number));
+      el.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openSlot(number);
+        }
+      });
+    }
   });
 }
 
