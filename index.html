@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CityGo · Estacionamientos de visita</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <meta name="theme-color" content="#132344" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">EDIFICIO CITYGO</div>
+      <h1>Estacionamientos de visita</h1>
+      <p class="subtitle">Control web de estacionamientos de visita, ocupación y tiempo máximo.</p>
+    </div>
+    <div class="top-actions">
+      <button id="btnSound" class="btn secondary">Activar sonido</button>
+      <button id="btnNotifications" class="btn secondary">Activar notificaciones</button>
+      <label class="month-control">
+        <span>Mes de infracciones</span>
+        <input id="reportMonth" type="month" />
+      </label>
+      <button id="btnMonthlyReport" class="btn report">Reporte de infracciones del mes</button>
+      <button id="btnExport" class="btn secondary">Exportar historial CSV</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="summary" aria-label="Resumen">
+      <article class="summary-card"><span class="dot dot-white"></span><div><strong id="countAvailable">0</strong><span>Disponibles</span></div></article>
+      <article class="summary-card"><span class="dot dot-green"></span><div><strong id="countOccupied">0</strong><span>Ocupados</span></div></article>
+      <article class="summary-card"><span class="dot dot-yellow"></span><div><strong id="countWarning">0</strong><span>Por vencer</span></div></article>
+      <article class="summary-card"><span class="dot dot-red"></span><div><strong id="countOverdue">0</strong><span>Excedidos</span></div></article>
+    </section>
+
+    <section class="legend">
+      <span><i class="mini white"></i> Disponible</span>
+      <span><i class="mini green"></i> Ocupado</span>
+      <span><i class="mini yellow"></i> Menos de 30 min.</span>
+      <span><i class="mini red"></i> Tiempo excedido</span>
+      <span class="rule">Tiempo máximo: <strong>6 horas</strong></span>
+    </section>
+
+    <section class="workspace">
+      <div class="map-card">
+        <div class="section-heading">
+          <div><h2>Croquis interactivo</h2><p>Haz clic directamente sobre el puesto EV o EM para registrar, revisar o retirar una visita.</p></div>
+          <div id="clock" class="clock"></div>
+        </div>
+        <div class="map-wrap">
+          <img src="croquis_citygo.webp" alt="Croquis del estacionamiento CityGo" class="map-image" />
+          <div id="spotsLayer" class="spots-layer" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <aside class="alerts-panel">
+        <div class="section-heading compact"><div><h2>Alertas</h2><p>Señales visuales, aviso en pantalla y alerta sonora suave.</p></div></div>
+        <div id="alertsList" class="alerts-list"></div>
+      </aside>
+    </section>
+
+    <section class="history-section">
+      <div class="section-heading">
+        <div><h2>Historial de visitas</h2><p>Los registros retirados quedan almacenados en este navegador para revisión futura.</p></div>
+        <div class="history-actions"><input id="historySearch" type="search" placeholder="Buscar patente, nombre, depto. o puesto" /></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Puesto</th><th>Patente</th><th>Visita</th><th>Depto.</th><th>Ingreso</th><th>Retiro</th><th>¿Excedió?</th><th>Exceso</th></tr></thead>
+          <tbody id="historyBody"><tr><td colspan="8" class="empty-row">Aún no hay registros finalizados.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="reportDialog">
+    <div class="dialog-card report-dialog-card">
+      <div class="dialog-header">
+        <div><div class="eyebrow">REPORTE MENSUAL</div><h2 id="reportTitle">Infracciones del mes</h2></div>
+        <button type="button" id="btnCloseReport" class="icon-btn" aria-label="Cerrar">×</button>
+      </div>
+      <div id="reportSummary" class="report-summary"></div>
+      <div class="table-wrap report-table-wrap">
+        <table>
+          <thead><tr><th>Fecha</th><th>Depto.</th><th>Patente</th><th>Puesto</th><th>Ingreso</th><th>Límite</th><th>Retiro / Estado</th><th>Exceso</th></tr></thead>
+          <tbody id="reportBody"></tbody>
+        </table>
+      </div>
+      <div class="dialog-actions"><button type="button" id="btnDownloadReport" class="btn primary">Descargar CSV del reporte</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="visitDialog">
+    <form method="dialog" id="visitForm" class="dialog-card">
+      <div class="dialog-header">
+        <div><div id="dialogEyebrow" class="eyebrow">PUESTO</div><h2 id="dialogTitle">Registrar visita</h2></div>
+        <button type="button" id="btnCloseDialog" class="icon-btn" aria-label="Cerrar">×</button>
+      </div>
+
+      <input type="hidden" id="slotNumber" />
+
+      <div id="registrationFields" class="form-grid">
+        <label><span>Nombre de la visita *</span><input id="visitorName" required maxlength="80" autocomplete="name" /></label>
+        <label><span>Patente *</span><input id="plate" required maxlength="10" placeholder="ABCD12" autocapitalize="characters" /></label>
+        <label><span>Departamento que visita *</span><input id="apartment" required maxlength="12" placeholder="Ej.: 804" /></label>
+        <label><span>RUT (opcional)</span><input id="rut" maxlength="20" placeholder="12.345.678-9" /></label>
+        <label class="wide">
+          <span>Correo del departamento (opcional)</span>
+          <input id="email" type="email" maxlength="120" placeholder="residente@correo.cl" />
+          <small>Si se deja vacío, el aviso abrirá Gmail con todo listo salvo el destinatario.</small>
+        </label>
+        <div class="wide time-preview">
+          <div><span>Ingreso</span><strong id="startPreview">—</strong></div>
+          <div><span>Fin máximo</span><strong id="endPreview">—</strong></div>
+        </div>
+      </div>
+
+      <div id="occupiedView" class="occupied-view hidden"></div>
+
+      <div class="dialog-actions">
+        <button type="button" id="btnEmail" class="btn secondary hidden">Abrir aviso en Gmail</button>
+        <button type="button" id="btnWithdraw" class="btn danger hidden">Retirar vehículo</button>
+        <button type="submit" id="btnSave" class="btn primary">Registrar vehículo</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toastContainer" class="toast-container" aria-live="assertive"></div>
+
+  <script src="app-1.js"></script>
+  <script src="app-2.js"></script>
+  <script src="app-3.js"></script>
+  <script src="app-4.js"></script>
+  <script src="app-5.js"></script>
+</body>
+</html>
