@@ -50,9 +50,144 @@
           <div><h2>Croquis interactivo</h2><p>Haz clic directamente sobre el puesto EV o EM para registrar, revisar o retirar una visita.</p></div>
           <div id="clock" class="clock"></div>
         </div>
-        <div class="map-wrap">
-          <img src="croquis_citygo.png" alt="Croquis del estacionamiento CityGo" class="map-image" />
-          <div id="spotsLayer" class="spots-layer" aria-live="polite"></div>
+        <div class="map-wrap svg-map-wrap">
+          <svg id="parkingSvg" class="parking-svg" viewBox="0 0 2048 1273" role="img" aria-labelledby="parkingMapTitle parkingMapDesc">
+            <title id="parkingMapTitle">Croquis interactivo de estacionamientos CityGo</title>
+            <desc id="parkingMapDesc">Los puestos EV y EM son interactivos. Quincho, bicicletero, salas de basura, circulación y áreas reservadas son referencias visuales.</desc>
+
+            <g class="architecture">
+              <!-- Perímetro general -->
+              <path class="wall outer-wall" d="M94 1169 L94 566 L506 550 L506 182 L1328 163 L1328 185 L1660 185 Q1795 185 1870 342 L1915 137 L1915 560 L1890 560 L1890 918 L1868 1171 L94 1171 Z"/>
+              <path class="wall" d="M1328 342 H1869"/>
+              <path class="wall" d="M1328 342 V681 H1790 V555 H1890"/>
+              
+              <!-- Estructura central superior -->
+              <path class="wall" d="M846 164 V629 H1165 V164"/>
+              <path class="wall" d="M846 280 H1165 M846 360 H1165 M846 449 H1165 M1004 164 V280 M1004 280 V449"/>
+              <path class="wall thin" d="M846 280 L1004 360 M1004 280 L846 360 M846 360 L1004 449 M1004 360 L1165 449 M1165 360 L1004 449"/>
+              
+              <!-- Bicicletero -->
+              <rect class="reference-box" x="846" y="449" width="95" height="180"/>
+              <text class="reference-text vertical" x="872" y="548">BICICLETERO</text>
+              <g class="bike-icon" transform="translate(887 505)">
+                <circle cx="-18" cy="20" r="17"/><circle cx="28" cy="20" r="17"/>
+                <path d="M-18 20 L-2 -5 L15 20 L-18 20 M-2 -5 H12 L28 20 M-2 -5 L-9 -18 M-14 -18 H-3"/>
+              </g>
+              <rect class="reference-box" x="941" y="539" width="22" height="62"/>
+              <rect class="reference-box" x="941" y="601" width="22" height="28"/>
+              
+              <!-- Sala basura 2 -->
+              <rect class="reference-box" x="1005" y="533" width="160" height="96"/>
+              <rect class="reference-box" x="1005" y="541" width="22" height="20"/>
+              <rect class="reference-box" x="1005" y="561" width="22" height="22"/>
+              <rect class="reference-box" x="1005" y="583" width="22" height="22"/>
+              <text class="reference-text small" x="1090" y="578">SALA DE</text>
+              <text class="reference-text small" x="1090" y="600">BASURA 2</text>
+
+              <!-- Área central EV10 / EV16 -->
+              <path class="wall" d="M833 805 H1166 V899 H785 V899"/>
+              
+              <!-- Fila izquierda y circulación -->
+              <path class="wall" d="M94 692 H636 M94 850 H636"/>
+              <path class="wall" d="M331 692 V850 M376 692 V850"/>
+              <path class="wall thin" d="M331 692 L376 850 M376 692 L331 850"/>
+              
+              <!-- Parte inferior izquierda -->
+              <path class="wall" d="M94 1009 H414 M505 1009 H789"/>
+              <path class="wall" d="M193 1009 V1169 M330 1009 V1169 M414 1009 V1169 M505 1009 V1169 M599 1009 V1169 M690 1009 V1169 M789 1009 V1169"/>
+              <path class="wall thin" d="M193 1009 L330 1169 M330 1009 L193 1169 M330 1009 L414 1169 M414 1009 L330 1169"/>
+              <path class="wall thin" d="M505 1009 L599 1169 M599 1009 L505 1169 M599 1009 L690 1169 M690 1009 L599 1169 M690 1009 L789 1169 M789 1009 L690 1169"/>
+              
+              <!-- Sala basura 3 -->
+              <rect class="reference-box" x="414" y="1009" width="91" height="160"/>
+              <text class="reference-text small vertical" x="454" y="1092">SALA DE BASURA 3</text>
+
+              <!-- Quincho -->
+              <rect class="reference-box" x="1328" y="342" width="462" height="339"/>
+              <g class="grill-icon" transform="translate(1588 468)">
+                <path d="M-43 0 H43 Q34 42 0 42 Q-34 42 -43 0 Z" class="icon-fill"/>
+                <path d="M-18 42 L-35 78 M18 42 L40 78 M22 65 H48" />
+                <path d="M-13 -24 C-23 -36 -3 -39 -12 -51 M7 -24 C-3 -36 18 -39 8 -51 M27 -24 C17 -36 38 -39 28 -51"/>
+              </g>
+              <text class="reference-text" x="1588" y="545">QUINCHO</text>
+
+              <!-- Reservados -->
+              <text class="reserved-label" x="1558" y="885">RESERVADOS</text>
+            </g>
+
+            <!-- Estacionamientos interactivos -->
+            <g id="space-EM01" class="parking-space motorcycle-space available" data-slot="EM01" role="button" tabindex="0">
+              <rect class="space-shape" x="636" y="181" width="48" height="66"/><text class="space-label" x="660" y="219">EM01</text><text class="space-time" x="660" y="239"></text>
+            </g>
+            <g id="space-EM02" class="parking-space motorcycle-space available" data-slot="EM02" role="button" tabindex="0">
+              <rect class="space-shape" x="684" y="181" width="48" height="66"/><text class="space-label" x="708" y="219">EM02</text><text class="space-time" x="708" y="239"></text>
+            </g>
+            <g id="space-EM03" class="parking-space motorcycle-space available" data-slot="EM03" role="button" tabindex="0">
+              <rect class="space-shape" x="732" y="181" width="48" height="66"/><text class="space-label" x="756" y="219">EM03</text><text class="space-time" x="756" y="239"></text>
+            </g>
+
+            <g id="space-EV12" class="parking-space available" data-slot="EV12" role="button" tabindex="0">
+              <rect class="space-shape" x="846" y="164" width="158" height="116"/><text class="space-label" x="925" y="226">EV12</text><text class="space-time" x="925" y="255"></text>
+            </g>
+            <g id="space-EV13" class="parking-space available" data-slot="EV13" role="button" tabindex="0">
+              <rect class="space-shape" x="1004" y="164" width="161" height="116"/><text class="space-label" x="1085" y="226">EV13</text><text class="space-time" x="1085" y="255"></text>
+            </g>
+            <g id="space-EV14" class="parking-space available" data-slot="EV14" role="button" tabindex="0">
+              <rect class="space-shape" x="1004" y="280" width="161" height="80"/><text class="space-label" x="1085" y="326">EV14</text><text class="space-time" x="1085" y="349"></text>
+            </g>
+            <g id="space-EV15" class="parking-space available" data-slot="EV15" role="button" tabindex="0">
+              <rect class="space-shape" x="1004" y="449" width="161" height="84"/><text class="space-label" x="1085" y="499">EV15</text><text class="space-time" x="1085" y="522"></text>
+            </g>
+
+            <g id="space-EV04" class="parking-space available" data-slot="EV04" role="button" tabindex="0">
+              <rect class="space-shape" x="94" y="692" width="82" height="158"/><text class="space-label" x="135" y="780">EV04</text><text class="space-time" x="135" y="808"></text>
+            </g>
+            <g id="space-EV05" class="parking-space available" data-slot="EV05" role="button" tabindex="0">
+              <rect class="space-shape" x="176" y="692" width="76" height="158"/><text class="space-label" x="214" y="780">EV05</text><text class="space-time" x="214" y="808"></text>
+            </g>
+            <g id="space-EV06" class="parking-space available" data-slot="EV06" role="button" tabindex="0">
+              <rect class="space-shape" x="252" y="692" width="79" height="158"/><text class="space-label" x="291" y="780">EV06</text><text class="space-time" x="291" y="808"></text>
+            </g>
+            <g id="space-EV07" class="parking-space available" data-slot="EV07" role="button" tabindex="0">
+              <rect class="space-shape" x="376" y="692" width="74" height="158"/><text class="space-label" x="413" y="780">EV07</text><text class="space-time" x="413" y="808"></text>
+            </g>
+            <g id="space-EV08" class="parking-space available" data-slot="EV08" role="button" tabindex="0">
+              <rect class="space-shape" x="450" y="692" width="78" height="158"/><text class="space-label" x="489" y="780">EV08</text><text class="space-time" x="489" y="808"></text>
+            </g>
+            <g id="space-EV09" class="parking-space available" data-slot="EV09" role="button" tabindex="0">
+              <rect class="space-shape" x="528" y="692" width="108" height="158"/><text class="space-label" x="582" y="780">EV09</text><text class="space-time" x="582" y="808"></text>
+            </g>
+
+            <g id="space-EV10" class="parking-space available" data-slot="EV10" role="button" tabindex="0">
+              <rect class="space-shape" x="833" y="805" width="172" height="94"/><text class="space-label" x="919" y="858">EV10</text><text class="space-time" x="919" y="884"></text>
+            </g>
+            <g id="space-EV16" class="parking-space available" data-slot="EV16" role="button" tabindex="0">
+              <rect class="space-shape" x="1005" y="805" width="161" height="94"/><text class="space-label" x="1085" y="858">EV16</text><text class="space-time" x="1085" y="884"></text>
+            </g>
+
+            <g id="space-EV03" class="parking-space available" data-slot="EV03" role="button" tabindex="0">
+              <rect class="space-shape" x="94" y="1009" width="99" height="160"/><text class="space-label" x="144" y="1097">EV03</text><text class="space-time" x="144" y="1126"></text>
+            </g>
+
+            <g id="space-EV17" class="parking-space available" data-slot="EV17" role="button" tabindex="0">
+              <rect class="space-shape" x="1328" y="681" width="77" height="137"/><text class="space-label" x="1367" y="756">EV17</text><text class="space-time" x="1367" y="784"></text>
+            </g>
+            <g id="space-EV18" class="parking-space available" data-slot="EV18" role="button" tabindex="0">
+              <rect class="space-shape" x="1405" y="681" width="77" height="137"/><text class="space-label" x="1444" y="756">EV18</text><text class="space-time" x="1444" y="784"></text>
+            </g>
+            <g id="space-EV19" class="parking-space available" data-slot="EV19" role="button" tabindex="0">
+              <rect class="space-shape" x="1482" y="681" width="77" height="137"/><text class="space-label" x="1521" y="756">EV19</text><text class="space-time" x="1521" y="784"></text>
+            </g>
+            <g id="space-EV20" class="parking-space available" data-slot="EV20" role="button" tabindex="0">
+              <rect class="space-shape" x="1559" y="681" width="77" height="137"/><text class="space-label" x="1598" y="756">EV20</text><text class="space-time" x="1598" y="784"></text>
+            </g>
+            <g id="space-EV21" class="parking-space available" data-slot="EV21" role="button" tabindex="0">
+              <rect class="space-shape" x="1636" y="681" width="77" height="137"/><text class="space-label" x="1675" y="756">EV21</text><text class="space-time" x="1675" y="784"></text>
+            </g>
+            <g id="space-EV22" class="parking-space available" data-slot="EV22" role="button" tabindex="0">
+              <rect class="space-shape" x="1713" y="681" width="77" height="137"/><text class="space-label" x="1752" y="756">EV22</text><text class="space-time" x="1752" y="784"></text>
+            </g>
+          </svg>
         </div>
       </div>
 
